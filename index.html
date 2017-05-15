@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./css/search.css">
+    <script src="./js/vue.min.js"></script>
+    <script src="./js/vue-resource.js"></script>
+    <title>425搜索</title>
+</head>
+<style>
+    .grey {
+        background: #ccc;
+    }
+    [v-cloak] {
+        display: none;
+    }
+    .tip_item:hover{
+      background: #ccc;
+    }
+</style>
+<body  >
+<div id="bai">
+    <input class="bai-search" type="text" v-model="t1" @keyup="get($event)" @keyup.up="top()" @keyup.down="down()"
+           placeholder="请输入搜索内容..">
+    <button type="submit" @click="search()"></button>
+    <ul>
+        <li v-for="(todo,index) in datas" :class="{grey:index==now}" @click="open(index)" class="tip_item" v-cloak>{{todo}}</li>
+        <p class="tip" v-show="datas.length==0" :class="{active: isTrue}" v-cloak >{{message}}</p>
+    </ul>
+</div>
+</body>
+<!--<script src="./js/search.js"></script>-->
+
+
+<script>
+	/**
+ * Created by xiyan on 2017/3/16.
+ */
+window.onload = function () {
+    var vm = new Vue({
+        el: '#bai',
+        data: {
+            t1: '',
+            datas: [],
+            now: -1,
+            isTrue: false,
+            message: '这里将展示您的输入提示...'
+        },
+        methods: {
+            get: function (ev) {
+                if (ev.keyCode == 38 || ev.keyCode == 40) {
+                    return
+                }
+                if (ev.keyCode == 13) {
+                    window.open('https://www.baidu.com/s?ie=utf-8&f=3&rsv_bp=0&rsv_idx=1&tn=baidu&wd=' + this.t1);
+                    this.t1 = ""
+                }
+                if (this.t1 == "") {
+                    this.message = "这里将展示您的输入提示..."
+                }
+                this.$http.jsonp('https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su', {
+                    wd: this.t1
+                }, {
+                    jsonp: 'cb'
+                }).then(function (dat) {
+                    this.datas = dat.data.s
+                }, function () {
+
+                })
+            },
+            top: function () {
+                this.now--;
+                if (this.now == -1) {
+                    this.now = this.datas.length - 1
+                }
+                this.t1 = this.datas[this.now]
+            },
+            down: function () {
+                this.now++;
+                if (this.now == this.datas.length) {
+                    this.now = 0
+                }
+                this.t1 = this.datas[this.now]
+            },
+            search: function () {
+                if (this.t1 == ""||this.t1.replace(/(^\s*)|(\s*$)/g, "").length==0 ) {
+                    this.message = "你输入的内容为空哦！";
+                    this.isTrue = true;
+                    return;
+                }
+                window.open('https://www.baidu.com/s?ie=utf-8&f=3&rsv_bp=0&rsv_idx=1&tn=baidu&wd=' + this.t1);
+                vm.t1 = ""
+            },
+            open:function(index){
+                window.open('https://www.baidu.com/s?ie=utf-8&f=3&rsv_bp=0&rsv_idx=1&tn=baidu&wd=' + this.datas[index]);
+                this.t1 = ""
+            }
+        }
+    })
+};
+
+</script>
+
+
+
+</html>
